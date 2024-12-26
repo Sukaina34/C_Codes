@@ -1,0 +1,535 @@
+//To do list
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_TASKS 100
+#define MAX_DESCRIPTION 256
+
+typedef struct {
+    char description[MAX_DESCRIPTION];
+    int isCompleted;
+} Task;
+
+Task tasks[MAX_TASKS];
+int taskCount = 0;
+
+void addTask() {
+    if (taskCount >= MAX_TASKS) {
+        printf("Task list is full. Cannot add more tasks.\n");
+        return;
+    }
+
+    printf("Enter task description: ");
+    getchar(); // Consume newline left by previous input
+    fgets(tasks[taskCount].description, MAX_DESCRIPTION, stdin);
+    tasks[taskCount].description[strcspn(tasks[taskCount].description, "\n")] = 0; // Remove newline character
+    tasks[taskCount].isCompleted = 0;
+    taskCount++;
+
+    printf("Task added successfully.\n");
+}
+
+void markTaskAsComplete() {
+    int taskNumber;
+    printf("Enter task number to mark as complete: ");
+    scanf("%d", &taskNumber);
+
+    if (taskNumber < 1 || taskNumber > taskCount) {
+        printf("Invalid task number.\n");
+        return;
+    }
+
+    tasks[taskNumber - 1].isCompleted = 1;
+    printf("Task marked as complete.\n");
+}
+
+void deleteTask() {
+    int taskNumber;
+    printf("Enter task number to delete: ");
+    scanf("%d", &taskNumber);
+
+    if (taskNumber < 1 || taskNumber > taskCount) {
+        printf("Invalid task number.\n");
+        return;
+    }
+
+    for (int i = taskNumber - 1; i < taskCount - 1; i++) {
+        tasks[i] = tasks[i + 1];
+    }
+    taskCount--;
+
+    printf("Task deleted successfully.\n");
+}
+
+void viewTasks() {
+    if (taskCount == 0) {
+        printf("No tasks available.\n");
+        return;
+    }
+
+    printf("To-Do List:\n");
+    for (int i = 0; i < taskCount; i++) {
+        printf("%d. [%c] %s\n", i + 1, tasks[i].isCompleted ? 'X' : ' ', tasks[i].description);
+    }
+}
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\n--- To-Do List Manager ---\n");
+        printf("1. Add Task\n");
+        printf("2. Mark Task as Complete\n");
+        printf("3. Delete Task\n");
+        printf("4. View Tasks\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addTask();
+                break;
+            case 2:
+                markTaskAsComplete();
+                break;
+            case 3:
+                deleteTask();
+                break;
+            case 4:
+                viewTasks();
+                break;
+            case 5:
+                printf("Exiting... Goodbye!\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
+
+
+//Budget Tracker
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_TRANSACTIONS 100
+#define MAX_DESCRIPTION 256
+
+typedef struct {
+    char description[MAX_DESCRIPTION];
+    float amount;
+    int isExpense; // 1 for expense, 0 for income
+} Transaction;
+
+Transaction transactions[MAX_TRANSACTIONS];
+int transactionCount = 0;
+float balance = 0.0;
+
+void addTransaction() {
+    if (transactionCount >= MAX_TRANSACTIONS) {
+        printf("Transaction list is full. Cannot add more transactions.\n");
+        return;
+    }
+
+    char description[MAX_DESCRIPTION];
+    float amount;
+    int isExpense;
+
+    printf("Enter transaction description: ");
+    getchar(); // Consume newline left by previous input
+    fgets(description, MAX_DESCRIPTION, stdin);
+    description[strcspn(description, "\n")] = 0; // Remove newline character
+
+    printf("Enter amount: ");
+    scanf("%f", &amount);
+
+    printf("Is this an expense? (1 for Yes, 0 for No): ");
+    scanf("%d", &isExpense);
+
+    Transaction t;
+    strcpy(t.description, description);
+    t.amount = amount;
+    t.isExpense = isExpense;
+
+    transactions[transactionCount++] = t;
+    balance += (isExpense ? -amount : amount);
+
+    printf("Transaction added successfully.\n");
+}
+
+void viewTransactions() {
+    if (transactionCount == 0) {
+        printf("No transactions available.\n");
+        return;
+    }
+
+    printf("\n--- Transaction History ---\n");
+    for (int i = 0; i < transactionCount; i++) {
+        printf("%d. [%s] $%.2f - %s\n",
+               i + 1,
+               transactions[i].isExpense ? "Expense" : "Income",
+               transactions[i].amount,
+               transactions[i].description);
+    }
+}
+
+void viewBalance() {
+    printf("\nCurrent Balance: $%.2f\n", balance);
+}
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\n--- Budget Tracker ---\n");
+        printf("1. Add Transaction\n");
+        printf("2. View Transactions\n");
+        printf("3. View Balance\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                addTransaction();
+                break;
+            case 2:
+                viewTransactions();
+                break;
+            case 3:
+                viewBalance();
+                break;
+            case 4:
+                printf("Exiting... Goodbye!\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
+
+
+//Shopping Cart
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_PRODUCTS 10
+#define MAX_CART_ITEMS 10
+#define MAX_PRODUCT_NAME_LENGTH 50
+
+typedef struct {
+    int id;
+    char name[MAX_PRODUCT_NAME_LENGTH];
+    float price;
+    int stock;
+} Product;
+
+typedef struct {
+    int productId;
+    int quantity;
+} CartItem;
+
+Product products[MAX_PRODUCTS] = {
+    {1, "Laptop", 800.00, 10},
+    {2, "Smartphone", 500.00, 20},
+    {3, "Headphones", 50.00, 50},
+    {4, "Keyboard", 30.00, 100},
+    {5, "Mouse", 20.00, 150},
+    {6, "Monitor", 200.00, 15},
+    {7, "USB Cable", 5.00, 200},
+    {8, "Charger", 25.00, 80},
+    {9, "External Hard Drive", 120.00, 30},
+    {10, "Smart Watch", 150.00, 50}
+};
+
+CartItem cart[MAX_CART_ITEMS];
+int cartItemCount = 0;
+
+void displayProducts() {
+    printf("\nAvailable Products:\n");
+    printf("ID | Name               | Price   | Stock\n");
+    printf("------------------------------------------\n");
+    for (int i = 0; i < MAX_PRODUCTS; i++) {
+        printf("%d  | %-18s | %.2f   | %d\n", products[i].id, products[i].name, products[i].price, products[i].stock);
+    }
+    printf("\n");
+}
+
+void addToCart() {
+    int productId, quantity;
+    printf("Enter product ID to add to cart: ");
+    scanf("%d", &productId);
+
+    if (productId < 1 || productId > MAX_PRODUCTS) {
+        printf("Invalid product ID.\n");
+        return;
+    }
+
+    printf("Enter quantity: ");
+    scanf("%d", &quantity);
+
+    if (quantity < 1 || quantity > products[productId - 1].stock) {
+        printf("Invalid quantity. Available stock: %d.\n", products[productId - 1].stock);
+        return;
+    }
+
+    cart[cartItemCount].productId = productId;
+    cart[cartItemCount].quantity = quantity;
+    cartItemCount++;
+
+    products[productId - 1].stock -= quantity;
+
+    printf("Added %d of %s to your cart.\n", quantity, products[productId - 1].name);
+}
+
+float calculateTotal() {
+    float total = 0;
+    for (int i = 0; i < cartItemCount; i++) {
+        int productId = cart[i].productId;
+        total += products[productId - 1].price * cart[i].quantity;
+    }
+    return total;
+}
+
+void applyDiscount(float *total) {
+    int discountChoice;
+    printf("Do you have a discount code? (1 = Yes, 2 = No): ");
+    scanf("%d", &discountChoice);
+
+    if (discountChoice == 1) {
+        int discountPercentage;
+        printf("Enter discount percentage: ");
+        scanf("%d", &discountPercentage);
+        if (discountPercentage > 0 && discountPercentage <= 100) {
+            *total -= (*total * discountPercentage / 100);
+            printf("Discount applied! New total: %.2f\n", *total);
+        } else {
+            printf("Invalid discount percentage.\n");
+        }
+    }
+}
+
+void checkout() {
+    if (cartItemCount == 0) {
+        printf("Your cart is empty.\n");
+        return;
+    }
+
+    printf("\nShopping Cart Summary:\n");
+    printf("ID | Name               | Price   | Quantity | Subtotal\n");
+    printf("------------------------------------------------------\n");
+
+    float total = 0;
+    for (int i = 0; i < cartItemCount; i++) {
+        int productId = cart[i].productId;
+        float subtotal = products[productId - 1].price * cart[i].quantity;
+        printf("%d  | %-18s | %.2f   | %d        | %.2f\n", products[productId - 1].id, products[productId - 1].name, products[productId - 1].price, cart[i].quantity, subtotal);
+        total += subtotal;
+    }
+
+    printf("------------------------------------------------------\n");
+
+    applyDiscount(&total);
+
+    printf("Total: %.2f\n", total);
+
+    char confirm;
+    printf("Do you want to proceed with checkout? (Y/N): ");
+    getchar();  // Consume the newline from previous input
+    scanf("%c", &confirm);
+
+    if (confirm == 'Y' || confirm == 'y') {
+        printf("Thank you for your purchase!\n");
+    } else {
+        printf("Checkout cancelled.\n");
+    }
+}
+
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\n1. View Products\n");
+        printf("2. Add to Cart\n");
+        printf("3. View Cart\n");
+        printf("4. Checkout\n");
+        printf("5. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                displayProducts();
+                break;
+            case 2:
+                addToCart();
+                break;
+            case 3:
+                if (cartItemCount == 0) {
+                    printf("Your cart is empty.\n");
+                } else {
+                    printf("\nItems in your cart:\n");
+                    printf("ID | Name               | Quantity\n");
+                    printf("--------------------------------------\n");
+                    for (int i = 0; i < cartItemCount; i++) {
+                        printf("%d  | %-18s | %d\n", products[cart[i].productId - 1].id, products[cart[i].productId - 1].name, cart[i].quantity);
+                    }
+                    printf("\n");
+                }
+                break;
+            case 4:
+                checkout();
+                break;
+            case 5:
+                printf("Thank you for visiting our store!\n");
+                exit(0);
+            default:
+                printf("Invalid choice. Please try again.\n");
+        }
+    }
+
+    return 0;
+}
+
+
+//Manage a music playlist
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+#define MAX_SONG_NAME_LENGTH 100
+#define MAX_ARTIST_NAME_LENGTH 100
+
+typedef struct Song {
+    char name[MAX_SONG_NAME_LENGTH];
+    char artist[MAX_ARTIST_NAME_LENGTH];
+    struct Song* next;
+} Song;
+
+Song* createSong(char* songName, char* artistName) {
+    Song* newSong = (Song*)malloc(sizeof(Song));
+    if (newSong == NULL) {
+        printf("Memory allocation failed!\n");
+        exit(1);
+    }
+    strcpy(newSong->name, songName);
+    strcpy(newSong->artist, artistName);
+    newSong->next = NULL;
+    return newSong;
+}
+
+void addSong(Song** head, char* songName, char* artistName) {
+    Song* newSong = createSong(songName, artistName);
+    if (*head == NULL) {
+        *head = newSong;
+    } else {
+        Song* temp = *head;
+        while (temp->next != NULL) {
+            temp = temp->next;
+        }
+        temp->next = newSong;
+    }
+    printf("Song '%s' by '%s' added to the playlist.\n", songName, artistName);
+}
+
+void displayPlaylist(Song* head) {
+    if (head == NULL) {
+        printf("The playlist is empty.\n");
+        return;
+    }
+    printf("Playlist:\n");
+    Song* temp = head;
+    while (temp != NULL) {
+        printf("- %s by %s\n", temp->name, temp->artist);
+        temp = temp->next;
+    }
+}
+
+void deleteSong(Song** head, char* songName) {
+    if (*head == NULL) {
+        printf("The playlist is empty.\n");
+        return;
+    }
+
+    Song* temp = *head;
+    Song* prev = NULL;
+
+    if (strcmp(temp->name, songName) == 0) {
+        *head = temp->next;
+        free(temp);
+        printf("Song '%s' deleted from the playlist.\n", songName);
+        return;
+    }
+
+    while (temp != NULL && strcmp(temp->name, songName) != 0) {
+        prev = temp;
+        temp = temp->next;
+    }
+
+    if (temp == NULL) {
+        printf("Song '%s' not found in the playlist.\n", songName);
+        return;
+    }
+
+    prev->next = temp->next;
+    free(temp);
+    printf("Song '%s' deleted from the playlist.\n", songName);
+}
+
+int main() {
+    Song* playlist = NULL;
+    int choice;
+    char songName[MAX_SONG_NAME_LENGTH];
+    char artistName[MAX_ARTIST_NAME_LENGTH];
+
+    do {
+        printf("\nMusic Playlist Manager\n");
+        printf("1. Add Song\n");
+        printf("2. Display Playlist\n");
+        printf("3. Delete Song\n");
+        printf("4. Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+        getchar();
+
+        switch (choice) {
+            case 1:
+                printf("Enter song name to add: ");
+                fgets(songName, MAX_SONG_NAME_LENGTH, stdin);
+                songName[strcspn(songName, "\n")] = 0;
+
+                printf("Enter artist name: ");
+                fgets(artistName, MAX_ARTIST_NAME_LENGTH, stdin);
+                artistName[strcspn(artistName, "\n")] = 0;
+
+                addSong(&playlist, songName, artistName);
+                break;
+            case 2:
+                displayPlaylist(playlist);
+                break;
+            case 3:
+                printf("Enter song name to delete: ");
+                fgets(songName, MAX_SONG_NAME_LENGTH, stdin);
+                songName[strcspn(songName, "\n")] = 0;
+                deleteSong(&playlist, songName);
+                break;
+            case 4:
+                printf("Exiting...\n");
+                break;
+            default:
+                printf("Invalid choice! Please try again.\n");
+        }
+    } while (choice != 4);
+
+    return 0;
+}
